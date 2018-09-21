@@ -11,7 +11,11 @@
 #include "llvm/ExecutionEngine/Orc/LambdaResolver.h"
 #include "llvm/ExecutionEngine/Orc/LazyEmittingLayer.h"
 #include "llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h"
-#include "llvm/ExecutionEngine/ObjectMemoryBuffer.h"
+#if JL_LLVM_VERSION >= 70000
+#  include "llvm/Support/SmallVectorMemoryBuffer.h"
+#else
+#  include "llvm/ExecutionEngine/ObjectMemoryBuffer.h"
+#endif
 #include "llvm/ExecutionEngine/JITEventListener.h"
 
 #include "llvm/IR/LegacyPassManager.h"

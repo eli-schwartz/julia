@@ -334,7 +334,11 @@ object::OwningBinary<object::ObjectFile> JuliaOJIT::CompilerT::operator()(Module
     JL_TIMING(LLVM_OPT);
     jit.PM.run(M);
     std::unique_ptr<MemoryBuffer> ObjBuffer(
+#if JL_LLVM_VERSION >= 70000
+        new SmallVectorMemoryBuffer(std::move(jit.ObjBufferSV)));
+#else
         new ObjectMemoryBuffer(std::move(jit.ObjBufferSV)));
+#endif
     auto Obj = object::ObjectFile::createObjectFile(ObjBuffer->getMemBufferRef());
 
     if (!Obj) {
