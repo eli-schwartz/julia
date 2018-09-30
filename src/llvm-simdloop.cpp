@@ -1,19 +1,24 @@
 // This file is a part of Julia. License is MIT: https://julialang.org/license
 
 #define DEBUG_TYPE "lower_simd_loop"
-#undef DEBUG
+#include "llvm-version.h"
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 // This file defines two entry points:
 //     global function annotateSimdLoop: mark a loop as a SIMD loop.
 //     createLowerSimdLoopPass: construct LLVM for lowering a marked loop later.
 
-#include "llvm-version.h"
 #include "support/dtypes.h"
 #include <llvm/Analysis/LoopPass.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Metadata.h>
 #include <llvm/Support/Debug.h>
+#if JL_LLVM_VERSION < 70000
+#  define LLVM_DEBUG(X) DEBUG(X)
+#endif
 
 #include <cstdio>
 
@@ -29,7 +34,7 @@ static MDNode *simd_loop_md = NULL;
 /// incr should be the basic block that increments the loop counter.
 bool annotateSimdLoop(BasicBlock *incr)
 {
-    DEBUG(dbgs() << "LSL: annotating simd_loop\n");
+    LLVM_DEBUG(dbgs() << "LSL: annotating simd_loop\n");
     // Lazy initialization
     if (!simd_loop_mdkind) {
         simd_loop_mdkind = incr->getContext().getMDKindID("simd_loop");
@@ -43,7 +48,7 @@ bool annotateSimdLoop(BasicBlock *incr)
         unsigned op = i.getOpcode();
         if (op==Instruction::Add) {
             if (i.getType()->isIntegerTy()) {
-                DEBUG(dbgs() << "LSL: setting simd_loop metadata\n");
+                LLVM_DEBUG(dbgs() << "LSL: setting simd_loop metadata\n");
                 i.setMetadata(simd_loop_mdkind, simd_loop_md);
                 return true;
             }
@@ -131,14 +136,14 @@ void LowerSIMDLoop::enableUnsafeAlgebraIfReduction(PHINode *Phi, Loop *L) const
             Instruction *U = cast<Instruction>(UI);
             if (L->contains(U)) {
                 if (J) {
-                    DEBUG(dbgs() << "LSL: not a reduction var because op has two internal uses: " << *I << "\n");
+                    LLVM_DEBUG(dbgs() << "LSL: not a reduction var because op has two internal uses: " << *I << "\n");
                     return;
                 }
                 J = U;
             }
         }
         if (!J) {
-            DEBUG(dbgs() << "LSL: chain prematurely terminated at " << *I << "\n");
+            LLVM_DEBUG(dbgs() << "LSL: chain prematurely terminated at " << *I << "\n");
             return;
         }
         if (J == Phi) {
@@ -148,7 +153,7 @@ void LowerSIMDLoop::enableUnsafeAlgebraIfReduction(PHINode *Phi, Loop *L) const
         if (opcode) {
             // Check that arithmetic op matches prior arithmetic ops in the chain.
             if (getReduceOpcode(J, I) != opcode) {
-                DEBUG(dbgs() << "LSL: chain broke at " << *J << " because of wrong opcode\n");
+                LLVM_DEBUG(dbgs() << "LSL: chain broke at " << *J << " because of wrong opcode\n");
                 return;
             }
         }
@@ -156,14 +161,14 @@ void LowerSIMDLoop::enableUnsafeAlgebraIfReduction(PHINode *Phi, Loop *L) const
             // First arithmetic op in the chain.
             opcode = getReduceOpcode(J, I);
             if (!opcode) {
-                DEBUG(dbgs() << "LSL: first arithmetic op in chain is uninteresting" << *J << "\n");
+                LLVM_DEBUG(dbgs() << "LSL: first arithmetic op in chain is uninteresting" << *J << "\n");
                 return;
             }
         }
         chain.push_back(J);
     }
     for (chainVector::const_iterator K=chain.begin(); K!=chain.end(); ++K) {
-        DEBUG(dbgs() << "LSL: marking " << **K << "\n");
+        LLVM_DEBUG(dbgs() << "LSL: marking " << **K << "\n");
         (*K)->setFast(true);
     }
 }
@@ -196,10 +201,10 @@ bool LowerSIMDLoop::markSIMDLoop(Module &M, Function *marker, bool ivdep)
         if (!L)
             continue;
 
-        DEBUG(dbgs() << "LSL: simd_loop found\n");
-        DEBUG(dbgs() << "LSL: ivdep is: " << ivdep << "\n");
+        LLVM_DEBUG(dbgs() << "LSL: simd_loop found\n");
+        LLVM_DEBUG(dbgs() << "LSL: ivdep is: " << ivdep << "\n");
         BasicBlock *Lh = L->getHeader();
-        DEBUG(dbgs() << "LSL: loop header: " << *Lh << "\n");
+        LLVM_DEBUG(dbgs() << "LSL: loop header: " << *Lh << "\n");
         MDNode *n = L->getLoopID();
         if (!n) {
             // Loop does not have a LoopID yet, so give it one.

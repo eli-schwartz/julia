@@ -1,8 +1,10 @@
 // This file is a part of Julia. License is MIT: https://julialang.org/license
 
 #define DEBUG_TYPE "combine_muladd"
-#undef DEBUG
 #include "llvm-version.h"
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Function.h>

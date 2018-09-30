@@ -60,7 +60,7 @@ static void sweep_finalizers(fl_context_t *fl_ctx)
                 t->vtable->finalize(fl_ctx, tagptr(tmp, TAG_CVALUE));
             }
             if (!isinlined(tmp) && owned(tmp)) {
-#ifdef DEBUG
+#if (JL_LLVM_VERSION >= 70000 && defined(LLVM_DEBUG)) || defined(DEBUG)
                 memset(cv_data(tmp), 0xbb, cv_len(tmp));
 #endif
                 free(cv_data(tmp));

@@ -2,11 +2,13 @@
 
 // Function multi-versioning
 #define DEBUG_TYPE "julia_multiversioning"
-#undef DEBUG
+#include "llvm-version.h"
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 // LLVM pass to clone function for different archs
 
-#include "llvm-version.h"
 #include "support/dtypes.h"
 
 #include <llvm/Pass.h>

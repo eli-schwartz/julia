@@ -16,7 +16,9 @@
 #include "julia_assert.h"
 
 #define DEBUG_TYPE "lower_handlers"
-#undef DEBUG
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 using namespace llvm;
 

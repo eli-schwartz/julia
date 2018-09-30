@@ -2146,7 +2146,11 @@ bool LateLowerGCFrame::doFinalization(Module &M)
 }
 
 bool LateLowerGCFrame::runOnFunction(Function &F) {
+#if JL_LLVM_VERSION >= 70000
+    LLVM_DEBUG(dbgs() << "GC ROOT PLACEMENT: Processing function " << F.getName() << "\n");
+#else
     DEBUG(dbgs() << "GC ROOT PLACEMENT: Processing function " << F.getName() << "\n");
+#endif
     // Check availability of functions again since they might have been deleted.
     reinitFunctions(*F.getParent());
     if (!ptls_getter)

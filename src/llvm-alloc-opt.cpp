@@ -1,8 +1,10 @@
 // This file is a part of Julia. License is MIT: https://julialang.org/license
 
 #define DEBUG_TYPE "alloc_opt"
-#undef DEBUG
 #include "llvm-version.h"
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 #include <llvm/ADT/SmallSet.h>
 #include <llvm/ADT/SmallVector.h>

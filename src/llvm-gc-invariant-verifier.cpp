@@ -25,7 +25,9 @@
 #include "julia.h"
 
 #define DEBUG_TYPE "verify_gc_invariants"
-#undef DEBUG
+#if JL_LLVM_VERSION < 70000
+#  undef DEBUG
+#endif
 
 using namespace llvm;
 

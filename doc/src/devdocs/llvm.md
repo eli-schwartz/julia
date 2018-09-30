@@ -61,7 +61,7 @@ You can pass options to LLVM via the environment variable `JULIA_LLVM_ARGS`.
 Here are example settings using `bash` syntax:
 
   * `export JULIA_LLVM_ARGS = -print-after-all` dumps IR after each pass.
-  * `export JULIA_LLVM_ARGS = -debug-only=loop-vectorize` dumps LLVM `DEBUG(...)` diagnostics for
+  * `export JULIA_LLVM_ARGS = -debug-only=loop-vectorize` dumps LLVM's `LLVM_DEBUG(...)` diagnostics for
     loop vectorizer. If you get warnings about "Unknown command line argument", rebuild LLVM with
     `LLVM_ASSERTIONS = 1`.
 
