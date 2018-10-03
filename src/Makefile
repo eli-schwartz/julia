@@ -89,7 +89,7 @@ endif
 PUBLIC_HEADER_TARGETS := $(addprefix $(build_includedir)/julia/,$(notdir $(PUBLIC_HEADERS)) $(UV_HEADERS))
 
 ifeq ($(JULIACODEGEN),LLVM)
-LLVMLINK += $(shell $(LLVM_CONFIG_HOST) --ldflags --libs --system-libs)
+LLVMLINK += $(shell $(LLVM_CONFIG_HOST) --ldflags --libs --system-libs $(LLVM_LIBS))
 ifeq ($(USE_LLVM_SHLIB),1)
 FLAGS += -DLLVM_SHLIB
 endif # USE_LLVM_SHLIB == 1
